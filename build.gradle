@@ -1,0 +1,65 @@
+group 'org.example'
+apply plugin: 'idea'
+apply plugin: 'java'
+apply plugin: 'scala'
+apply plugin: 'application'
+
+// ===== 指定main
+mainClassName = 'org.maplestory2.MS2MusicMain'
+
+[compileJava, compileTestJava, compileScala]*.options*.encoding = 'UTF-8'
+
+// ===== 仓库路径
+repositories {
+    mavenLocal()
+    maven { url 'https://maven.aliyun.com/nexus/content/groups/public/' }
+    mavenCentral()
+}
+
+// ===== 指定 Java、Scala 文件
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java']
+        }
+        scala {
+            srcDirs = ['src/main/scala', 'src/main/java']
+        }
+    }
+
+    test {
+        java {
+            srcDirs = ['src/test/scala', 'src/test/java']
+        }
+        scala {
+            srcDirs = ['src/test/scala', 'src/test/java']
+        }
+    }
+}
+
+// ===== 第三方依赖
+dependencies {
+
+    // ----- Spring Boot
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '3.2.0'
+
+    // ----- 日志打印工具 log4j
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.17.0'
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-to-slf4j', version: '2.17.0'
+
+    // ----- 控制台彩色字体库
+    implementation 'org.fusesource.jansi:jansi:2.4.0'
+
+    // ----- Java Scala 混合支持
+    implementation group: 'org.scala-lang', name: 'scala3-library_3', version: '3.4.2'
+    implementation group: 'org.scala-lang', name: 'scala3-compiler_3', version: '3.4.2'
+
+    // ----- Lombok 组件支持
+    annotationProcessor 'org.projectlombok:lombok:1.18.22'
+    compileOnly 'org.projectlombok:lombok:1.18.22'
+
+    // ----- 单元测试框架 junit
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+
+}
