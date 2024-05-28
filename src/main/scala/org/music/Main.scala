@@ -1,5 +1,7 @@
 package org.music
 
+import org.music.parser.MidiParser
+
 import javax.sound.midi.MidiSystem
 
 object Main extends App {
@@ -8,7 +10,7 @@ object Main extends App {
 
   sequencer.open()
 
-  private val sequence = MidiSystem.getSequence(getClass.getResourceAsStream("star.mid"))
+  private val sequence = MidiSystem.getSequence(getClass.getClassLoader.getResourceAsStream("star.mid"))
 
   sequencer.setSequence(sequence)
 
