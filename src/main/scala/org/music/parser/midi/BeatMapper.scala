@@ -4,20 +4,24 @@ import scala.collection.mutable.ArrayBuffer
 
 object BeatMapper {
 
-  def mapBeat(tick: Int, ppq: Int): ArrayBuffer[Int] = {
+  def mapBeat(tick: Long, ppq: Long): ArrayBuffer[Long] = {
+    val notes = ArrayBuffer[Long]()
+
     val wholeNote_ppq = ppq << 2
-    val wholeNote_size = tick / wholeNote_ppq
+    val wholeNote_size: Long = tick / wholeNote_ppq
 
     val remainder = tick % wholeNote_ppq
 
-    val notes = recursiveNearestPowersOfTwo((remainder << 6) / wholeNote_ppq, ArrayBuffer[Int]())
+    if (remainder > 0) {
+      notes ++= recursiveNearestPowersOfTwo((remainder << 6) / wholeNote_ppq, ArrayBuffer[Long]())
 
-    for (i <- 0 until wholeNote_size) notes += 1
+      for (i <- 0L until wholeNote_size) notes += 1
+    }
 
     notes
   }
 
-  private def recursiveNearestPowersOfTwo(remainder: Int, notes: ArrayBuffer[Int]): ArrayBuffer[Int] = {
+  private def recursiveNearestPowersOfTwo(remainder: Long, notes: ArrayBuffer[Long]): ArrayBuffer[Long] = {
     var note = remainder
     note |= note >>> 1
     note |= note >>> 2

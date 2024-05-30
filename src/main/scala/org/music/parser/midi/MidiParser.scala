@@ -2,7 +2,7 @@ package org.music.parser
 
 import org.music.PianoKeyMapper
 import org.music.entity.{NoteEntity, TrackEntity}
-import org.music.parser.midi.VolumeMapper
+import org.music.parser.midi.{BeatMapper, VolumeMapper}
 
 import javax.sound.midi.*
 
@@ -14,6 +14,10 @@ object MidiParser {
 
     for (track <- sequence.getTracks) {
       for (i <- 0 until track.size) {
+
+
+        val noteMap: Map[String, Int] = Map.empty
+
         val event = track.get(i)
         val message = event.getMessage
         message match
@@ -21,8 +25,13 @@ object MidiParser {
             val command = sm.getCommand
             val pianoKey = PianoKeyMapper.midiNoteToPianoKey(sm.getData1)
             val volume = VolumeMapper.mapMidiPitch(sm.getData2)
-            //            val tick = event.getTick
-            val tick = List[Long]()
+            val tick = BeatMapper.mapBeat(event.getTick, sequence.getResolution)
+
+            if (command == ShortMessage.NOTE_ON) {
+
+            } else if (command == ShortMessage.NOTE_OFF) {
+
+            }
 
             trackEntity.addNote(sm.getChannel, NoteEntity(command, pianoKey, volume, tick))
           }
