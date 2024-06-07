@@ -1,4 +1,4 @@
-package org.music.parser.midi
+package org.music.parser
 
 object VolumeMapper {
 

@@ -1,11 +1,11 @@
-group 'org.example'
+group 'org.music'
 apply plugin: 'idea'
 apply plugin: 'java'
 apply plugin: 'scala'
 apply plugin: 'application'
 
 // ===== 指定main
-mainClassName = 'org.maplestory2.MS2MusicMain'
+mainClassName = 'org.music.Main'
 
 [compileJava, compileTestJava, compileScala]*.options*.encoding = 'UTF-8'
 
@@ -20,7 +20,7 @@ repositories {
 sourceSets {
     main {
         java {
-            srcDirs = ['src/main/java']
+            srcDirs = ['src/main/scala', 'src/main/java']
         }
         scala {
             srcDirs = ['src/main/scala', 'src/main/java']

@@ -1,4 +1,4 @@
-package org.music
+package org.music.parser
 
 object PianoKeyMapper {
 
