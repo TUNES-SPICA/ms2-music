@@ -10,6 +10,7 @@ object VolumeMapper {
 
   def mapMidiPitch(volume: Int): Int = {
     val mmlVolume = volume >> 3
+
     if (mmlVolume > 0) {
       mmlVolume
     } else if (volume > 0) {
@@ -17,6 +18,7 @@ object VolumeMapper {
     } else {
       0
     }
+
   }
 
 }

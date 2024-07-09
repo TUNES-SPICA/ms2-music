@@ -5,23 +5,65 @@ import org.music.entity.NoteEntity
 import javax.sound.midi.{MetaMessage, Sequence, ShortMessage, SysexMessage}
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
+import scala.util.control.Breaks.{break, breakable}
 
 object MidiParser {
 
-  def parseMidiData(sequence: Sequence) = {
-    val array = ArrayBuffer[NoteEntity]()
+  def toMML(audioTrack: ArrayBuffer[NoteEntity]) = {
+    // 对 start 进行升序排序
+    val orderNotes = audioTrack.sorted(Ordering.by((note: NoteEntity) => note.startTick))
+
+    // ===== 准备参数
+    // ----- 轨道集合
+    val lines = ArrayBuffer[ArrayBuffer[NoteEntity]]()
+    // ----- 重叠空间，此空间用于判断线程是否有重叠的音符
+    var overlapIntervals = ArrayBuffer[NoteEntity]()
+    // ----- 单轨
+    val line = ArrayBuffer[NoteEntity]()
+
+    // ===== 将全音符音轨，根据重叠区域划分为不同的音轨
+    orderNotes.foreach(note => {
+      breakable {
+        for (line <- lines) {
+          if (note.startTick >= line.last.endTick) {
+            line += note
+            break
+          }
+        }
+        lines += new ArrayBuffer[NoteEntity]
+        lines.last += note
+      }
+    })
+
+    lines
+  }
+
+  /**
+   * 解析 midi
+   *
+   * @param sequence midi音轨序列
+   * @return
+   */
+  def parseMidiData(sequence: Sequence): ArrayBuffer[NoteEntity] = {
+    val audioTrack = ArrayBuffer[NoteEntity]()
 
     for (track <- sequence.getTracks) {
+
       val notesMap: mutable.LinkedHashMap[String, ArrayBuffer[NoteEntity]] = mutable.LinkedHashMap()
+
       for (i <- 0 until track.size) {
+
         val event = track.get(i)
         val message = event.getMessage
+
         message match
           case sm: ShortMessage => {
+
             val command = sm.getCommand
             val pianoKey = PianoKeyMapper.midiNoteToPianoKey(sm.getData1)
             val volume = VolumeMapper.mapMidiPitch(sm.getData2)
             val tick = event.getTick
+
             if (command == ShortMessage.NOTE_ON) {
               val noteValue = notesMap.getOrElseUpdate(s"c${sm.getChannel}k${pianoKey}", ArrayBuffer.empty[NoteEntity])
               noteValue += NoteEntity(command, pianoKey, volume, event.getTick, -1, ArrayBuffer())
@@ -31,7 +73,7 @@ object MidiParser {
               if (head.endTick == -1) {
                 head.endTick = tick
                 noteArray.remove(0)
-                array += head
+                audioTrack += head
               }
             }
           }
@@ -41,7 +83,7 @@ object MidiParser {
       }
     }
 
-    array
+    audioTrack
   }
 
   /**
@@ -53,6 +95,11 @@ object MidiParser {
     System.out.println("SysexMessage received. Length: " + sm.getLength)
   }
 
+  /**
+   * 处理 MIDI 元数据消息
+   *
+   * @param mm mete message
+   */
   private def handleMetaMessage(mm: MetaMessage): Unit = {
     // 处理元数据消息
     val `type` = mm.getType

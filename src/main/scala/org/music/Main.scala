@@ -1,8 +1,8 @@
 package org.music
 
-import org.music.entity.TrackEntity
-import org.music.parser.MidiParser
+import org.music.parser.{BeatMapper, MidiParser}
 
+import java.io.File
 import javax.sound.midi.MidiSystem
 
 object Main extends App {
@@ -15,15 +15,24 @@ object Main extends App {
 
   sequencer.setSequence(sequence)
 
-  // 解析MIDI数据
-  private val trackEntity: TrackEntity = MidiParser.parseMidiData(sequence)
+  val lines = MidiParser.toMML(trackEntity)
 
-  trackEntity.notes.foreach((channel, notes) => {
-    notes.foreach(note => {
-      println(s" Channel: ${channel} MessageType: ${note.messageType} Note: ${note.pianoKey} Volume: ${note.volume} Tick: ${note.tick}")
+  sequencer.close()
+
+  //  trackEntity.foreach(note => {
+  //    println(s"Note: ${note.pianoKey} Volume: ${note.volume} Tick: ${BeatMapper.mapBeat(note.endTick - note.startTick, sequence.getResolution)}")
+  //  })
+  // 解析MIDI数据
+  private val trackEntity = MidiParser.parseMidiData(sequence)
+
+  lines.foreach(line => {
+    println("line")
+    line.foreach(note => {
+      //      println(s"Note: ${note.pianoKey} Volume: ${note.volume} Tick: ${BeatMapper.mapBeat(note.endTick - note.startTick, sequence.getResolution)}")
+      println(s"Note: ${note.pianoKey} Volume: ${note.volume} Tick: ${BeatMapper.mapBeat(note.endTick - note.startTick, sequence.getResolution)} Start: ${note.startTick} End:${note.endTick}")
+      //      println(s"Note: ${note.pianoKey} Volume: ${note.volume} Tick: ${BeatMapper.mapBeat(note.endTick - note.startTick, sequence.getResolution)} Start: ${note.startTick / 6} End:${note.endTick / 6}")
     })
   })
 
-  sequencer.close()
 
 }

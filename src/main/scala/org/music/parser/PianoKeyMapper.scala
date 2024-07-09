@@ -13,10 +13,13 @@ object PianoKeyMapper {
 
   private def initPianoKeys(): Unit = {
     val noteNames = Array("C", "C+", "D", "D+", "E", "F", "F+", "G", "G+", "A", "A+", "B")
+
     for (i <- pianoKeys.indices) {
+
       for (j <- pianoKeys(i).indices) {
         pianoKeys(i)(j) = "O" + (i + 1) + noteNames(j)
       }
+
     }
   }
 
