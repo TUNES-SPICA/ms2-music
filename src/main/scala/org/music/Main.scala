@@ -1,6 +1,7 @@
 package org.music
 
 import org.music.entity.track.TrackSplittingRule
+import org.music.operator.PatternDrivenStringCompression
 import org.music.parser.MidiParser
 
 import java.io.File
@@ -12,12 +13,12 @@ object Main extends App {
 
   sequencer.open()
 
-  private val sequence = MidiSystem.getSequence(getClass.getClassLoader.getResourceAsStream("star.mid"))
+  private val sequence = MidiSystem.getSequence(new File("C:\\Users\\11393\\Desktop\\file_project\\web\\ms2-music\\src\\main\\resources\\s3.mid"))
 
   sequencer.setSequence(sequence)
 
-  val lines = MidiParser.toMML(trackEntity, TrackSplittingRule(true, false))
   private val trackEntity = MidiParser.parseMidiData(sequence)
+  val lines = MidiParser.toMML(trackEntity, TrackSplittingRule(true, false))
 
   sequencer.close()
   private val qqp = sequence.getResolution
@@ -25,6 +26,7 @@ object Main extends App {
   lines.foreach(line => {
     println("line")
     println(line)
+    println(PatternDrivenStringCompression.compression(line.toString()))
   })
 
 

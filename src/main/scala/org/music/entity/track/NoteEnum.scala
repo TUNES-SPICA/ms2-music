@@ -31,6 +31,11 @@ enum NoteEnum {
   case OCTAVE
 
   /**
+   * 音阶2
+   */
+  case OCTAVE2
+
+  /**
    * 连接符
    */
   case LINK
@@ -39,6 +44,16 @@ enum NoteEnum {
    * 空白（跳过此音符）
    */
   case BLANK
+
+  /**
+   * 音符时值
+   */
+  case NOTE_TIME
+
+  /**
+   * 音符时值影响范围结束段
+   */
+  case NOTE_TIME_END
 
   /**
    * 其他

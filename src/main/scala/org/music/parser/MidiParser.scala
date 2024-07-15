@@ -1,6 +1,6 @@
 package org.music.parser
 
-import org.music.entity.track.*
+import org.music.entity.track.{NoteEntity, NoteEnum, TrackSplittingRule, TracksEntity}
 
 import javax.sound.midi.{MetaMessage, Sequence, ShortMessage, SysexMessage}
 import scala.collection.mutable
@@ -126,8 +126,6 @@ object MidiParser {
         val tick = event.getTick
         endTick = Math.max(tick, endTick)
         message match
-          //          case sm: ShortMessage =>
-
           case sm: SysexMessage => handleSysexMessage(sm)
           case mm: MetaMessage =>
             // 处理元数据消息
@@ -168,7 +166,7 @@ object MidiParser {
                 audioTrack += head
               }
             }
-          } // 处理其他未知类型的消息
+          }
 
       }
     }
