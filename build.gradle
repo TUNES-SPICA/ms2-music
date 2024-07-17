@@ -4,7 +4,7 @@ apply plugin: 'scala'
 apply plugin: 'application'
 
 // ===== 指定main
-mainClassName = 'org.music.Main'
+mainClassName = 'org.music.MainGUI'
 
 [compileJava, compileTestJava, compileScala]*.options*.encoding = 'UTF-8'
 
@@ -36,6 +36,9 @@ dependencies {
     // ----- Scala 支持
     implementation group: 'org.scala-lang', name: 'scala3-library_3', version: '3.4.2'
     implementation group: 'org.scala-lang', name: 'scala3-compiler_3', version: '3.4.2'
+
+    // ----- Scala GUI
+    implementation group: 'org.scala-lang.modules', name: 'scala-swing_3', version: '3.0.0'
 
 }
 

@@ -1,19 +1,23 @@
 package org.music
 
+import org.music.entity.mml.MS2MMLEntity
 import org.music.entity.track.TrackSplittingRule
 import org.music.operator.PatternDrivenStringCompression
 import org.music.parser.MidiParser
 
-import java.io.File
 import javax.sound.midi.MidiSystem
+import scala.collection.mutable.ArrayBuffer
 
+/**
+ * 主程序
+ */
 object Main extends App {
 
   private val sequencer = MidiSystem.getSequencer
 
   sequencer.open()
 
-  private val sequence = MidiSystem.getSequence(new File("C:\\Users\\11393\\Desktop\\file_project\\web\\ms2-music\\src\\main\\resources\\s3.mid"))
+  val mml = MS2MMLEntity(ArrayBuffer())
 
   sequencer.setSequence(sequence)
 
@@ -21,13 +25,19 @@ object Main extends App {
   val lines = MidiParser.toMML(trackEntity, TrackSplittingRule(true, false))
 
   sequencer.close()
-  private val qqp = sequence.getResolution
 
+  private val qqp = sequence.getResolution
+  // 使用 GUI 选择文件
+  private val sequence = MidiSystem.getSequence(getClass.getResource("/s3.mid"))
   lines.foreach(line => {
     println("line")
     println(line)
-    println(PatternDrivenStringCompression.compression(line.toString()))
+    mml.add(PatternDrivenStringCompression.compression(line.toString()))
   })
+
+  mml.toMML.foreach(
+    println(_)
+  )
 
 
 }

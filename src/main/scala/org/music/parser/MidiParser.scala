@@ -126,7 +126,7 @@ object MidiParser {
         val tick = event.getTick
         endTick = Math.max(tick, endTick)
         message match
-          case sm: SysexMessage => handleSysexMessage(sm)
+          case sm: SysexMessage => 
           case mm: MetaMessage =>
             // 处理元数据消息
             val mmType = mm.getType
@@ -135,7 +135,6 @@ object MidiParser {
               case 81 => // 处理BPM变更
                 bpmTrack += NoteEntity.bpm().copy(volume = (60000000 / ((data(0) & 0xFF) << 16 | (data(1) & 0xFF) << 8 | data(2) & 0xFF)), startTick = tick)
               case 89 => // 处理调号和调式
-                println("KEY SIGNATURE")
               case _ => // 处理其他未知类型的消息
             }
           case _ => {
@@ -172,15 +171,6 @@ object MidiParser {
     }
 
     TracksEntity(audioTrack, bpmTrack, qqp)
-  }
-
-  /**
-   * 处理系统消息
-   *
-   * @param sm SysexMessage
-   */
-  private def handleSysexMessage(sm: SysexMessage): Unit = {
-    System.out.println("SysexMessage received. Length: " + sm.getLength)
   }
 
 }

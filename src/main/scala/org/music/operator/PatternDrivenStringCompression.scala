@@ -46,7 +46,9 @@ object PatternDrivenStringCompression {
 
       point = point + 1
 
-      p += MS2NoteEntity.init(note, value)
+      if (note != null) {
+        p += MS2NoteEntity.init(note, value)
+      }
     }
 
     // ===== 合并 & 连接符，展开压缩音符 =====
