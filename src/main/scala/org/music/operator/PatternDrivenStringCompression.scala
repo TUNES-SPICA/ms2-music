@@ -3,6 +3,7 @@ package org.music.operator
 import org.music.entity.mml.MS2NoteEntity
 import org.music.entity.track.NoteEnum
 import org.music.entity.track.NoteEnum.{BLANK, NOTE}
+import org.music.parser.PianoKeyMapper
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -12,7 +13,7 @@ object PatternDrivenStringCompression {
 
   def compression(line: String): String = {
 
-    val p = ArrayBuffer[MS2NoteEntity]()
+    var p = ArrayBuffer[MS2NoteEntity]()
 
     // ===== 执行第一次遍历，将字符转换为 MML 音符 =====
 
@@ -107,10 +108,12 @@ object PatternDrivenStringCompression {
                 val curOctave: Int = cur.value.toInt
 
                 if (preOctave - curOctave == 1) {
+                  cur.keys += cur.value.toInt
                   cur.value = "<"
                   cur.noteType = NoteEnum.OCTAVE2
                 }
                 else if (curOctave - preOctave == 1) {
+                  cur.keys += cur.value.toInt
                   cur.value = ">"
                   cur.noteType = NoteEnum.OCTAVE2
                 }
@@ -249,8 +252,125 @@ object PatternDrivenStringCompression {
           p.insert(index, newNoteMap(index))
         }
       }
-
     }
+
+    // ===== 删除空白符
+    p = p.filter(note => !(note.noteType == NoteEnum.BLANK || note.noteType == NoteEnum.OTHER))
+
+    // ===== 执行最后一次遍历，压缩音阶 =====
+    //    {
+    //      var point = 0
+    //
+    //      while (point < p.length) {
+    //
+    //        var cur, next, nextNext: MS2NoteEntity = null
+    //
+    //        var curOctave, nextOctave, nextNextOctave: MS2NoteEntity = null
+    //
+    //        var isContinuous = true
+    //
+    //        var isGoon = true
+    //
+    //        val note = p(point)
+    //
+    //        if (note.noteType == NoteEnum.OCTAVE || note.noteType == NoteEnum.OCTAVE2) {
+    //          curOctave = note
+    //          point = point + 1
+    //          while (point < p.length && isGoon) {
+    //            p(point).noteType match
+    //              case NoteEnum.NOTE => {
+    //                cur = p(point)
+    //                isGoon = false
+    //              }
+    //              case _ =>
+    //            point = point + 1
+    //          }
+    //
+    //          isGoon = true
+    //          while (point < p.length && isContinuous && isGoon) {
+    //            p(point).noteType match
+    //              case NoteEnum.NOTE => isContinuous = false
+    //              case NoteEnum.OCTAVE | NoteEnum.OCTAVE2 => {
+    //                nextOctave = p(point)
+    //                isGoon = false
+    //              }
+    //              case _ =>
+    //
+    //            point = point + 1
+    //          }
+    //
+    //          var point2 = point
+    //          isGoon = true
+    //          while (point2 < p.length && isContinuous && isGoon) {
+    //            p(point2).noteType match
+    //              case NoteEnum.NOTE => {
+    //                next = p(point2)
+    //                isGoon = false
+    //              }
+    //              case _ =>
+    //            point2 = point2 + 1
+    //          }
+    //
+    //          isGoon = true
+    //          while (point2 < p.length && isContinuous && isGoon) {
+    //            p(point2).noteType match
+    //              case NoteEnum.NOTE => isContinuous = false
+    //              case NoteEnum.OCTAVE | NoteEnum.OCTAVE2 => {
+    //                nextNextOctave = p(point2)
+    //                isGoon = false
+    //              }
+    //              case _ =>
+    //
+    //            point2 = point2 + 1
+    //          }
+    //
+    //          isGoon = true
+    //          while (point2 < p.length && isContinuous && isGoon) {
+    //            p(point2).noteType match
+    //              case NoteEnum.NOTE => {
+    //                nextNext = p(point2)
+    //                isGoon = false
+    //              }
+    //              case _ =>
+    //            point2 = point2 + 1
+    //          }
+    //
+    //          if (isContinuous && cur != null && next != null && nextNext != null) {
+    //            val curValue = if (curOctave.noteType == NoteEnum.OCTAVE) curOctave.value.toInt else curOctave.keys(0)
+    //            val nextValue = if (nextOctave.noteType == NoteEnum.OCTAVE) nextOctave.value.toInt else nextOctave.keys(0)
+    //            val nextNextValue = if (nextNextOctave.noteType == NoteEnum.OCTAVE) nextNextOctave.value.toInt else nextNext.keys(0)
+    //
+    //            if ((cur.value == "B" || cur.value == "C-") && (next.value == "C" || next.value == "B+") && nextOctave.value == ">") {
+    //              next.value = "B+"
+    //            } else if ((cur.value == "C" || cur.value == "B+") && (next.value == "B" || next.value == "C-") && nextOctave.value == "<") {
+    //              next.value = "C-"
+    //            } else {
+    //              next.value = "N" + PianoKeyMapper.pianoKeyToMMLNote(nextValue, next.value)
+    //            }
+    //
+    //            nextOctave.noteType = NoteEnum.BLANK
+    //            if (curValue == nextNextValue) {
+    //              nextNextOctave.noteType = NoteEnum.BLANK
+    //            } else if (curValue - nextNextValue == 1) {
+    //              if (nextNextOctave.noteType == NoteEnum.OCTAVE) nextNextOctave.keys += nextNextValue
+    //              else nextNextOctave.keys(0) = nextNextValue
+    //              nextNextOctave.noteType = NoteEnum.OCTAVE
+    //              nextNextOctave.value = "<"
+    //            } else if (nextNextValue - curValue == 1) {
+    //              if (nextNextOctave.noteType == NoteEnum.OCTAVE) nextNextOctave.keys += nextNextValue
+    //              else nextNextOctave.keys(0) = nextNextValue
+    //              nextNextOctave.noteType = NoteEnum.OCTAVE
+    //              nextNextOctave.value = ">"
+    //            }
+    //
+    //          }
+    //
+    //        }
+    //
+    //        point += 1
+    //      }
+    //    }
+
 
     // ===== 输出压缩结果 =====
     val result = new StringBuilder()

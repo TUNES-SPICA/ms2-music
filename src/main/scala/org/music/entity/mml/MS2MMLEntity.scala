@@ -1,5 +1,6 @@
 package org.music.entity.mml
 
+import java.util
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -11,21 +12,21 @@ case class MS2MMLEntity(lines: ArrayBuffer[String]) {
     lines += line
   }
 
-  def toMML: ArrayBuffer[String] = {
-    val mml = ArrayBuffer[String]()
+  def toMML: util.ArrayList[String] = {
+    val mml = util.ArrayList[String]()
 
-    mml += "<?xml version=\"1.0\" encoding=\"utf-8\"?>"
+    mml.add("<?xml version=\"1.0\" encoding=\"utf-8\"?>")
 
-    mml += "<ms2>"
+    mml.add("<ms2>")
 
     for (i <- lines.indices) {
-      mml += "<melody>"
-      if (i > 0) mml += s"<chord index=${i}>"
-      mml += "<![CDATA["
-      mml += lines(i)
-      mml += "]]>"
-      if (i > 0) mml += "</chord>"
-      mml += "</melody>"
+      mml.add("<melody>")
+      if (i > 0) mml.add(s"<chord index=\"${i}\">")
+      mml.add("<![CDATA[")
+      mml.add(lines(i))
+      mml.add("]]>")
+      if (i > 0) mml.add("</chord>")
+      mml.add("</melody>")
     }
 
     mml

@@ -16,4 +16,8 @@ object PianoKeyMapper {
     else PianoKeyEntity(rest, "")
   }
 
+  def pianoKeyToMMLNote(octave: Int, pianoKey: String): Int = {
+    (octave * 12) + pianoKeys.indexOf(pianoKey)
+  }
+
 }
