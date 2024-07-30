@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ms2-music</title>
+    <link href="./css/form.css" rel="stylesheet">
+    <link href="./css/uploadFile.css" rel="stylesheet">
+    <script src="./js/jquery.min3.3.1.js"></script>
+    <script src="./js/form.js"></script>
+    <script src="./js/axios.min.js"></script>
+</head>
+<body>
+<div class="wrapper">
+    <div class="container">
+        <h1></h1>
+        <form class="form">
+            <label>
+                <button class="fileButton" type="button">选择mid</button>
+                <input accept=".mid" class="file1" id="file" placeholder="mid文件" type="file">
+            </label>
+            <label>
+                <button id="conversion-button" type="button">转换</button>
+            </label>
+
+        </form>
+    </div>
+    <script>
+        let $protocol = window.location.protocol
+        let urlRegister = $protocol + "/"
+
+        $(function () {
+            $('#conversion-button').bind('click', function () {
+                let file = document.getElementById('file').files[0]
+                const data = new FormData()
+                data.append('file', file)
+                data.append('reduceRest', "true")
+                data.append('changeVolume', "false")
+                axios({
+                    "url": urlRegister + "conversion",
+                    "method": "POST",
+                    "timeout": 0,
+                    "processData": false,
+                    "mimeType": "multipart/form-data",
+                    "contentType": false,
+                    "crossDomain": true,
+                    "dataType": "json",
+                    "data": data,
+                    async: true,
+                }).then(function (response) {
+                    let disposition = response.headers['content-disposition'];
+                    let filename = disposition.split('filename=')[1];
+                    if (filename.startsWith('"') && filename.endsWith('"')) {
+                        filename = filename.substring(1, filename.length - 1);
+                    }
+
+                    // 解码 URL 编码的文件名
+                    filename = decodeURIComponent(filename);
+
+                    let blob = new Blob([response.data], {
+                        type: 'application/octet-stream'
+                    });
+                    let url = URL.createObjectURL(blob);
+
+                    let exportLink = document.createElement('a');
+                    exportLink.href = url;
+                    exportLink.download = filename;
+
+                    document.body.appendChild(exportLink);
+                    exportLink.click();
+                    document.body.removeChild(exportLink);
+                })
+            })
+        })
+
+        $(".fileButton").click(function () {
+            console.info('aa')
+            let it = event.target
+            document.getElementById("file").click()
+            upFile($(this))
+        })
+
+        function upFile(fileX) {
+            let path
+            let fileName
+            const file = fileX
+            const fileFrame = fileX.parent(".fileBox").children(".fileName")
+            path = file.val()
+            //path为获取的<input type="file">的文件名或文件路径
+            //火狐获取的是文件名，所以pos=-1,chrome和IE获取的是文件路径
+
+            if (path !== '') {
+                const pos1 = path.lastIndexOf('/')
+                const pos2 = path.lastIndexOf('\\')
+                const pos = Math.max(pos1, pos2)
+                if (pos < 0) {
+                    fileName = path
+                    fileFrame.text(fileName)
+                    fileFrame.attr("title", fileName)
+                } else {
+                    fileName = path.substring(pos + 1)//截取从pos+1索引到末尾
+                    fileFrame.text(fileName)
+                    fileFrame.attr("title", fileName)
+                }
+            }
+        }
+
+
+    </script>
+    <ul class="bg-bubbles">
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+    </ul>
+</div>
+</body>
+</html>

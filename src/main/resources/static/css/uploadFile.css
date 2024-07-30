@@ -1,0 +1,40 @@
+.file {
+    background: #D0EEFF;
+    border: 1px solid #99D3F5;
+    color: #1E88C7;
+}
+
+.fileButton {
+    display: inline-block;
+    width: 250px;
+    height: 40px;
+    line-height: 22px;
+    background: #FFA837;
+    border-radius: 0px 4px 4px 0px;
+    text-align: center;
+    color: #fff;
+    vertical-align: top;
+}
+
+.file1 {
+    width: 80px;
+    height: 34px;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    opacity: 0;
+    filter: Alpha(opacity=0); /*透明度兼容IE8*/
+    vertical-align: top;
+}
+
+.fileBox {
+    position: relative;
+    display: inline-block;
+}
+
+.file:hover {
+    background: #AADFFD;
+    border-color: #78C3F3;
+    color: #004974;
+    text-decoration: none;
+}
