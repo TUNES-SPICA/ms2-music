@@ -92,7 +92,7 @@ form {
     z-index: 2;
 }
 
-form input, form button {
+form input:not([type='checkbox']), form button {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
@@ -109,6 +109,47 @@ form input, form button {
     color: white;
     transition-duration: 0.25s;
     font-weight: 300;
+}
+
+/* 复选框聚焦时的样式，保持宽度不变 */
+form input[type='checkbox']:focus {
+    border-color: rgba(255, 255, 255, 0.8);
+    width: 20px; /* 保持宽度不变 */
+}
+
+/* 定义复选框的样式 */
+form input[type='checkbox'] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    outline: 0;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    background-color: rgba(255, 255, 255, 0.2);
+    width: 20px; /* 调整宽度 */
+    height: 20px; /* 调整高度 */
+    border-radius: 3px;
+    padding: 0; /* 移除内边距 */
+    margin: 10px 0; /* 调整外边距 */
+    display: inline-block; /* 改为内联块级元素 */
+    vertical-align: middle; /* 垂直居中 */
+    cursor: pointer; /* 更改光标样式 */
+    transition-duration: 0.25s;
+}
+
+/* 当复选框被选中时的样式 */
+form input[type='checkbox']:checked {
+    background-color: white; /* 被选中时的背景颜色 */
+    border-color: #53e3a6; /* 被选中时的边框颜色 */
+}
+
+/* 鼠标悬停时的样式 */
+form input[type='checkbox']:hover {
+    border-color: rgba(255, 255, 255, 0.6);
+}
+
+/* 复选框聚焦时的样式 */
+form input[type='checkbox']:focus {
+    border-color: rgba(255, 255, 255, 0.8);
 }
 
 form input:hover {

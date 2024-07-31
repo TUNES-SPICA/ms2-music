@@ -8,12 +8,43 @@
     <script src="./js/jquery.min3.3.1.js"></script>
     <script src="./js/form.js"></script>
     <script src="./js/axios.min.js"></script>
+    <style>
+        .checkbox-group label {
+            display: inline-block;
+            margin-right: 20px;
+        }
+
+        .version-number {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            font-size: smaller;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
 <div class="wrapper">
     <div class="container">
-        <h1></h1>
+        <h1><b>MIDI</b> 转换</h1>
         <form class="form">
+            <div class="checkbox-group">
+                <label>
+                    <input checked name="reduceRest" type="checkbox" value="true"> 延长音符
+                </label>
+                <label style="color: #999999">
+                    <input disabled name="changeBPM" type="checkbox" value="true"> 节奏变化
+                </label>
+
+            </div>
+            <div class="checkbox-group">
+                <label>
+                    <input name="sustain" type="checkbox" value="true"> 启用延音
+                </label>
+                <label>
+                    <input name="changeVolume" type="checkbox" value="true"> 音量变化
+                </label>
+            </div>
             <label>
                 <button class="fileButton" type="button">选择mid</button>
                 <input accept=".mid" class="file1" id="file" placeholder="mid文件" type="file">
@@ -21,7 +52,7 @@
             <label>
                 <button id="conversion-button" type="button">转换</button>
             </label>
-
+            <div class="version-number">version 1.0</div>
         </form>
     </div>
     <script>
@@ -29,12 +60,17 @@
         let urlRegister = $protocol + "/"
 
         $(function () {
-            $('#conversion-button').bind('click', function () {
+            $('#conversion-button').on('click', function () {
                 let file = document.getElementById('file').files[0]
                 const data = new FormData()
                 data.append('file', file)
-                data.append('reduceRest', "true")
-                data.append('changeVolume', "false")
+
+                const rule = ['reduceRest', 'changeBPM', 'sustain', 'changeVolume']
+                rule.forEach(valueKey => {
+                    const isChecked = $(`input[name="${valueKey}"]`).prop('checked');
+                    data.append(valueKey, isChecked);
+                });
+
                 axios({
                     "url": urlRegister + "conversion",
                     "method": "POST",
@@ -74,7 +110,6 @@
 
         $(".fileButton").click(function () {
             console.info('aa')
-            let it = event.target
             document.getElementById("file").click()
             upFile($(this))
         })
@@ -85,8 +120,6 @@
             const file = fileX
             const fileFrame = fileX.parent(".fileBox").children(".fileName")
             path = file.val()
-            //path为获取的<input type="file">的文件名或文件路径
-            //火狐获取的是文件名，所以pos=-1,chrome和IE获取的是文件路径
 
             if (path !== '') {
                 const pos1 = path.lastIndexOf('/')
