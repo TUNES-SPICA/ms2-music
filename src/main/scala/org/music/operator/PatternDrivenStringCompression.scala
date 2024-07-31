@@ -3,7 +3,6 @@ package org.music.operator
 import org.music.entity.mml.MS2NoteEntity
 import org.music.entity.track.NoteEnum
 import org.music.entity.track.NoteEnum.{BLANK, NOTE}
-import org.music.parser.PianoKeyMapper
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -41,6 +40,11 @@ object PatternDrivenStringCompression {
           if (point + 1 < line.length && getType(line(point + 1)) == 10) {
             point = point + 1
             value = value + line(point)
+
+            if (point + 1 < line.length && getType(line(point + 1)) == 10) {
+              point = point + 1
+              value = value + line(point)
+            }
           }
         }
       }

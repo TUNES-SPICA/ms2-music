@@ -1,15 +1,20 @@
 package org.music.parser
 
-import org.music.entity.track.{NoteEntity, NoteEnum, TrackSplittingRule, TracksEntity}
+import org.music.entity.track.{NoteEntity, NoteEnum, TrackRule, TracksEntity}
 
 import javax.sound.midi.{MetaMessage, Sequence, ShortMessage, SysexMessage}
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.util.control.Breaks.{break, breakable}
 
+/**
+ * mid（NoteEntity） 解析类
+ *
+ * 这里解析的 note 是指已经解析好的 mid 音符而不是原始 mid message
+ */
 object MidiParser {
 
-  def toMML(tracks: TracksEntity, trackSplittingRule: TrackSplittingRule) = {
+  def toMML(tracks: TracksEntity, trackSplittingRule: TrackRule): ArrayBuffer[StringBuilder] = {
 
     val ppq = tracks.getPpq
     val bpmTrack = tracks.getBpm
@@ -74,7 +79,7 @@ object MidiParser {
       // ===== 应用第一速率 TODO 变速暂未处理
       if (bpmTrack.nonEmpty) ms2Track.append("T").append(bpmTrack(0).volume)
       // ===== 如果设置不应用音量变化，应用默认音量
-      if (!trackSplittingRule.changeVolume) ms2Track.append(TrackSplittingRule.getDefaultVolume)
+      if (!trackSplittingRule.changeVolume) ms2Track.append(TrackRule.getDefaultVolume)
 
       line.foreach(note => {
 
@@ -126,14 +131,14 @@ object MidiParser {
         val tick = event.getTick
         endTick = Math.max(tick, endTick)
         message match
-          case sm: SysexMessage => 
+          case sm: SysexMessage =>
           case mm: MetaMessage =>
             // 处理元数据消息
             val mmType = mm.getType
             val data = mm.getData
             mmType match {
               case 81 => // 处理BPM变更
-                bpmTrack += NoteEntity.bpm().copy(volume = (60000000 / ((data(0) & 0xFF) << 16 | (data(1) & 0xFF) << 8 | data(2) & 0xFF)), startTick = tick)
+                bpmTrack += NoteEntity.bpm().copy(volume = 60000000 / ((data(0) & 0xFF) << 16 | (data(1) & 0xFF) << 8 | data(2) & 0xFF), startTick = tick)
               case 89 => // 处理调号和调式
               case _ => // 处理其他未知类型的消息
             }
@@ -143,26 +148,26 @@ object MidiParser {
             val pianoKey = PianoKeyMapper.midiNoteToPianoKey(sm.getData1)
             val volume = VolumeMapper.mapMidiPitch(sm.getData2)
             val channel = sm.getChannel
-            if (command == ShortMessage.NOTE_ON) {
-              if (volume > 0) {
-                notesMap.getOrElseUpdate(s"c${channel}k${pianoKey.key}", ArrayBuffer.empty[NoteEntity])
-                  += NoteEntity(NoteEnum.NOTE, pianoKey, volume, event.getTick, -1)
-              } else {
-                val noteArray = notesMap(s"c${channel}k${pianoKey.key}")
-                val head = noteArray.head
-                if (head.endTick == -1) {
-                  head.endTick = tick
-                  noteArray.remove(0)
-                  audioTrack += head
+
+            val noteKey = s"c${channel}k${pianoKey.key}"
+
+            if (command == ShortMessage.NOTE_ON && volume > 0) {
+              // ===== 接收了新的音符信号，准备记录
+              notesMap.getOrElseUpdate(noteKey, ArrayBuffer.empty[NoteEntity]) += NoteEntity(NoteEnum.NOTE, pianoKey, volume, event.getTick, -1)
+            } else if (command == ShortMessage.NOTE_OFF || volume == 0) {
+              // ===== 接收了音符关闭的信号
+              if (notesMap.contains(noteKey)) {
+                val noteArray = notesMap(noteKey)
+
+                // ===== 此处的判空处理，作用为应对异常的 midi 信号
+                if (noteArray.nonEmpty) {
+                  val head = noteArray.head
+                  if (head.endTick == -1) {
+                    head.endTick = tick
+                    noteArray.remove(0)
+                    audioTrack += head
+                  }
                 }
-              }
-            } else if (command == ShortMessage.NOTE_OFF) {
-              val noteArray = notesMap(s"c${channel}k${pianoKey.key}")
-              val head = noteArray.head
-              if (head.endTick == -1) {
-                head.endTick = tick
-                noteArray.remove(0)
-                audioTrack += head
               }
             }
           }
