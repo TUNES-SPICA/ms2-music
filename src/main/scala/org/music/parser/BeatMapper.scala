@@ -24,12 +24,12 @@ object BeatMapper {
     val wholeNote_ppq = ppq << 2
     val wholeNote_size: Long = tick / wholeNote_ppq
 
-    val remainder = tick % wholeNote_ppq
+    val remainder = ((tick % wholeNote_ppq) << 6) / wholeNote_ppq
 
     for (i <- 0L until wholeNote_size) notes += 1
 
     if (remainder > 0) {
-      notes ++= recursiveNearestPowersOfTwo((remainder << 6) / wholeNote_ppq, ArrayBuffer[Long]())
+      notes ++= recursiveNearestPowersOfTwo(remainder, ArrayBuffer[Long]())
 
     }
 
